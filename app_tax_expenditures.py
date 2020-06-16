@@ -63,6 +63,7 @@ with open('taxcalc/current_law_policy_poland.json') as f:
 ref_dict = reform['policy']
 var_list = []
 tax_expediture_list = []
+tax_expediture_list_polish = []
 for pkey, sdict in ref_dict.items():
         #print(f'pkey: {pkey}')
         #print(f'sdict: {sdict}')
@@ -96,13 +97,15 @@ for pkey, sdict in ref_dict.items():
             #calculating expenditure
 
             dumpdf[current_law_policy[k]['description']]= (dumpdf["weighted_tax_collected_under_policy"+ k]- dumpdf["weighted_citax"])/10**6
+            dumpdf[current_law_policy[k]['long_name']]= (dumpdf["weighted_tax_collected_under_policy"+ k]- dumpdf["weighted_citax"])/10**6            
             var_list = var_list + [k]
             tax_expediture_list = tax_expediture_list + [current_law_policy[k]['description']]
-            print(var_list)
+            tax_expediture_list_polish = tax_expediture_list_polish + [current_law_policy[k]['long_name']]            
+            #print(var_list)
             #var_list= [var_list]+[k]
             #print(var_list)
             #dumpdf[var_list]= dumpdf[var_list] + dumpdf[k]
-            print(dumpdf)
+            #print(dumpdf)
             
 dumpdf.to_csv('tax_expenditures_poland.csv', index=False, float_format='%.0f')
             
@@ -112,100 +115,8 @@ tax_expenditure_df= tax_expenditure_df.reset_index()
 tax_expenditure_df.columns = ['Tax Expenditure', 'Million Zlotys']
 tax_expenditure_df.to_csv('tax_expenditures_sum.csv',index=False, float_format='%.0f')
 
-
-    
-
-#use later
-citax1 = calc1.carray('citax')
-weight1 = calc1.carray('weight')
-wtd_citax1 = citax1 * weight1
-citax_collection1 = wtd_citax1.sum()
-citax_collection_billions1 = citax_collection1/10**9
-
-
-print('\n\n\n')
-print('TAX COLLECTION FOR THE YEAR - 2017\n')
-
-print("The CIT Collection in billions is: ", citax_collection_billions1)
-            
-            Business_Profit2 = calc2.carray('income')
-            Tax_Free_Incomes2 = calc2.carray('tax_free_income_total')
-            Tax_Base_Before_Deductions2 = calc2.carray('tax_base_before_deductions')
-            Deductions2 = calc2.carray('deductions_from_tax_base')
-            Tax_Base_After_Deductions2 = calc2.carray('income_tax_base_after_deductions')
-            citax2 = calc2.carray('citax')
-            weight2 = calc2.carray('weight')
-            etr2 = np.divide(citax2, Business_Profit2)
-            weighted_etr2 = etr2*weight2.values
-            weighted_etr_overall2 = (sum(weighted_etr2[~np.isnan(weighted_etr2)])/
-                                     sum(weight2.values[~np.isnan(weighted_etr2)]))
-            
-            wtd_citax2 = citax2 * weight2
-            
-            citax_collection2 = wtd_citax2.sum()
-            
-            citax_collection_billions2 = citax_collection2/10**9
-            
-            print('\n\n\n')
-            print('TAX COLLECTION FOR THE YEAR - 2017-Reform\n')
-            
-            print("The CIT Collection in billions is: ",citax_collection_billions2)
-            
-            print("Difference due to change in policy in small businesses:",(citax_collection_billions2 - citax_collection_billions1)*10**3,"millions")
-
-"""
-print('\n\n\n')
-print('FORECASTING TAX COLLECTION FOR THE FOLLOWING YEAR - 2018\n')
-print(f'CIT Collection, 2018: {sum(citax * weight) / 10**9:,.2f} Billion')
-
-print(f'Tax Base Before Deductions, 2018: {sum(Tax_Base_Before_Deductions * weight) / 10**9:,.2f} Billion')
-print(f'Deductions, 2018: {sum(Deductions * weight) / 10**9:,.2f} Billion')
-print(f'Tax Base After Deductions, 2018: {sum(Tax_Base_After_Deductions * weight) / 10**9:,.2f} Billion')
-print(f'Effective Tax Rate, 2018: {weighted_etr_overall*100:,.1f}%')
-"""
-            
-
-df_sector = dumpdf_1.groupby(['sector']).sum()
-df_sector['citax_millions'] = df_sector['citax']/10**6
-
-df_province = dumpdf_1.groupby(['province']).sum()
-df_province['citax_millions'] = df_province['citax']/10**6
-
-df_small_business = dumpdf_1.groupby(['small_business']).sum()
-df_small_business['citax_millions'] = df_small_business['citax']/10**6
-
-cmap = plt.cm.tab10
-colors = cmap(np.arange(len(df_sector)) % cmap.N)
-
-ax = df_sector.plot(kind='bar', use_index=True, y='citax_millions', 
-                    legend=False, rot=90,
-                    figsize=(8,8), color=colors)
-
-ax.set_ylabel('CIT in million Zlotys')
-ax.set_xlabel('')
-ax.set_title(' CIT collection by sector (2017)', fontweight="bold")
-plt.show()
-
-cmap = plt.cm.tab10
-colors = cmap(np.arange(len(df_province)) % cmap.N)
-
-ax = df_province.plot(kind='bar', use_index=True, y='citax_millions', 
-                    legend=False, rot=90,
-                    figsize=(8,8), color=colors)
-ax.set_ylabel('CIT in million Zlotys')
-ax.set_xlabel('')
-ax.set_title(' CIT collection by Province (2017)', fontweight="bold")
-plt.show()
-
-cmap = plt.cm.tab10
-colors = cmap(np.arange(len(df_province)) % cmap.N)
-
-ax = df_small_business.plot(kind='bar', use_index=True, y='citax_millions', 
-                    legend=False, rot=90,
-                    figsize=(8,8), color=colors)
-ax.set_ylabel('CIT in million Zlotys')
-ax.set_xlabel('')
-ax.set_title(' CIT collection by Type of Business (2017)', fontweight="bold")
-plt.show()
-
-
+tax_expenditure_df = dumpdf[tax_expediture_list_polish].sum(axis = 0)
+tax_expenditure_df= tax_expenditure_df.reset_index()
+tax_expenditure_df.columns = ['Wydatki Podatkowe', 'Milion Zlotys']
+tax_expenditure_df.to_csv('tax_expenditures_sum_polish.csv', encoding='utf-8', index=False, float_format='%.0f')
+tax_expenditure_df.to_csv('tax_expenditures_sum_polish.txt', encoding='utf-8', sep=',', index=False)
