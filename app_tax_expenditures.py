@@ -49,7 +49,7 @@ dumpdf = calc1.dataframe_cit(dump_vars)
 dumpdf['weight']= weight
 dumpdf['weighted_citax']= dumpdf['weight']*dumpdf['citax']
 dumpdf['ID_NO']= "A"+ dumpdf['CIT_ID_NO'].astype('str') 
-print(dumpdf)
+#print(dumpdf)
 dumpdf.to_csv('tax_expenditures_current_law.csv', index=False, float_format='%.0f')
 
 pol2 = Policy()
@@ -74,7 +74,7 @@ for pkey, sdict in ref_dict.items():
             mydict0={}
             mydict0[pkey]=mydict
             reform['policy']=mydict0
-            print('reform:', reform)
+            #print('reform:', reform)
             #var_list= k
             #print(f'k: {k}')
             #print(f's: {s}')
@@ -89,7 +89,7 @@ for pkey, sdict in ref_dict.items():
             dumpdf_2 = calc2.dataframe_cit(dump_vars)
             dumpdf_2['ID_NO']= "A"+ dumpdf_2['CIT_ID_NO'].astype('int').astype('str')
             dumpdf_2.drop('CIT_ID_NO', axis=1, inplace=True)
-            print(dumpdf_2)
+            #print(dumpdf_2)
             dumpdf_2 = dumpdf_2.rename(columns={'citax':"tax_collected_under_policy"+ k})
             dumpdf = pd.merge(dumpdf, dumpdf_2, how="inner", on="ID_NO")
             #create the weight variable
@@ -114,7 +114,7 @@ tax_expenditure_df = dumpdf[tax_expediture_list].sum(axis = 0)
 tax_expenditure_df= tax_expenditure_df.reset_index()
 tax_expenditure_df.columns = ['Tax Expenditure', 'Million Zlotys']
 tax_expenditure_df.to_csv('tax_expenditures_sum.csv',index=False, float_format='%.0f')
-
+print(tax_expenditure_df)
 tax_expenditure_df = dumpdf[tax_expediture_list_polish].sum(axis = 0)
 tax_expenditure_df= tax_expenditure_df.reset_index()
 tax_expenditure_df.columns = ['Wydatki Podatkowe', 'Milion Zlotys']
